@@ -26,28 +26,20 @@ bot = TelegramClient("bot", api_id, api_hash).start(bot_token=bot_token)
 async def main(client: TelegramClient, to: str, message: str, files: list[str]):
     # Printing upload progress
     def callback(current, total):
-        print(
-            "Uploaded",
-            current,
-            "out of",
-            total,
-            "bytes: {:.2%}".format(current / total),
-        )
+        print(f"Uploaded{current}/{total}")
 
     msg = await client.send_file(
-        to, file=files, caption=message, progress_callback=callback
+        entity=to, file=files, caption=message, progress_callback=callback
     )
-    print(msg.id)
 
 
 parser = ArgumentParser(prog="TelegramFileUploader", epilog="@GitHub:xz-dev")
 parser.add_argument("--to", help="Chat ID or username")
 parser.add_argument("--message", help="Message")
-parser.add_argument("--files", help="Files (separated by double slash //)")
+parser.add_argument("--files", help="Files", nargs="+")
 args = parser.parse_args()
 with bot:
-    files = [f.strip() for f in args.files.split("//") if f.strip()]
-    bot.loop.run_until_complete(main(bot, args.to, args.message, files))
+    bot.loop.run_until_complete(main(bot, args.to, args.message, args.files))
 
 # Example:
-# python3 main.py --to "me" --message "Hello, World!" --files "file1.txt//file2.txt"
+# python3 main.py --to "me" --message "Hello, World!" --files "file1.txt" "file2.txt"

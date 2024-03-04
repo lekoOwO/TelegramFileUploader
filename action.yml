@@ -9,15 +9,18 @@ inputs:
     description: 'Message'
     required: true
   files:
-    description: 'Files (separated by double slash //)'
+    description: 'Files (one file per line)'
     required: true
 outputs:
   status:
     description: 'Command status'
 runs:
   using: 'docker'
-  image: 'Containerfile'
+  image: 'Dockerfile'
   args:
     - "--to=${{ inputs.to-who }}"
     - "--message=${{ inputs.message }}"
     - "--files=${{ inputs.files }}"
+branding:
+  icon: 'upload-cloud'
+  color: 'green'
