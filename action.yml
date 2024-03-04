@@ -1,0 +1,23 @@
+# action.yml
+name: 'Telegram File Uploader'
+description: 'Uploader your GitHub action files to Telegram via Telethon'
+inputs:
+  to-who:
+    description: 'Send to who'
+    required: true
+  message:
+    description: 'Message'
+    required: true
+  files:
+    description: 'Files (separated by double slash //)'
+    required: true
+outputs:
+  status:
+    description: 'Command status'
+runs:
+  using: 'docker'
+  image: 'Containerfile'
+  args:
+    - "--to=${{ inputs.to-who }}"
+    - "--message=${{ inputs.message }}"
+    - "--files=${{ inputs.files }}"
