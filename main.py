@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentParser
 from os import environ
-from sys import argv
+from argparse import ArgumentParser
+from pathlib import Path
 
-from telethon import TelegramClient, events, sync
+from telethon import TelegramClient
 
 api_id = environ.get("API_ID")
 if not api_id:
@@ -26,11 +26,21 @@ bot = TelegramClient("bot", api_id, api_hash).start(bot_token=bot_token)
 async def main(client: TelegramClient, to: str, message: str, files: list[str]):
     # Printing upload progress
     def callback(current, total):
-        print(f"Uploaded{current}/{total}")
+        print(f"Uploaded{current/total*100}%")
 
-    msg = await client.send_file(
-        entity=to, file=files, caption=message, progress_callback=callback
+    # Upload files
+    uploaded_files = []
+    for file in files:
+        print(f"Uploading {file}")
+        ufile = await client.upload_file(file, progress_callback=callback)
+        print(f"Uploaded {file}")
+        uploaded_files.append(ufile)
+
+    print(f"Sending message")
+    await client.send_file(
+        entity=to, file=uploaded_files, caption=message, progress_callback=callback
     )
+    print(f"Sent message")
 
 
 parser = ArgumentParser(prog="TelegramFileUploader", epilog="@GitHub:xz-dev")

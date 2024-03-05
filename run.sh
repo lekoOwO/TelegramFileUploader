@@ -1,32 +1,34 @@
 #!/usr/bin/env bash
 
-# 初始化新命令变量
-new_command=""
+# 初始化新命令参数数组
+declare -a new_command_args
 
-# 标记是否遇到了 --files 参数
-encountered_files=false
+# 标记当前是否在处理 "--file" 后的文件参数
+processing_file=false
+
+process_file_arg() {
+  local arg="$1"
+  # 使用过程替换来避免子shell问题
+  while IFS= read -r line; do
+    new_command_args+=("$line")
+  done < <(echo "$arg" | sed '/^[[:space:]]*$/d')
+}
 
 # 遍历所有传入的参数
 for arg in "$@"; do
-  if $encountered_files; then
-    # 如果已经遇到了 --files，后续参数视作文件名，直到遇到另一个以“--”开头的参数
-    if [[ "$arg" == --* ]]; then
-      encountered_files=false # 如果遇到另一个参数，重置标记
-      new_command+=" $arg" # 把这个参数也加入新命令
-    else
-      # 添加文件到命令中，考虑到文件名中可能包含空格，使用引号
-      new_command+=" \"$arg\""
-    fi
+  if $processing_file; then
+    # 处理并修改 new_command_args
+    process_file_arg "$arg"
+    processing_file=false # 重置标记
   else
-    # 如果当前参数是 --files，设置标记但不立即处理
-    if [[ $arg == "--files" ]]; then
-      encountered_files=true
-    else
-      # 将当前参数加入到新命令中
-      new_command+=" $arg"
+    # 检查是否为 "--file"
+    if [[ "$arg" == "--file" ]]; then
+      processing_file=true
+    new_command_args+=("$arg")
     fi
   fi
 done
 
-# 执行新命令，使用 eval 来正确处理特殊字符和空格
-eval "python3 main.py$new_command"
+# 执行命令
+python3 main.py "${new_command_args[@]}"
+
