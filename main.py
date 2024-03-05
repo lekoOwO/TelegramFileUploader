@@ -5,6 +5,7 @@ from os import environ
 from pathlib import Path
 
 from telethon import TelegramClient
+from markdown import markdown
 
 api_id = environ.get("API_ID")
 if not api_id:
@@ -38,9 +39,10 @@ async def main(client: TelegramClient, to: str, message: str, files: list[str]):
 
     print(f"Sending message")
     message_list = [None for i in range(len(uploaded_files) - 1)]
-    message_list.append(message)
+    message_html = markdown(message)
+    message_list.append(message_html)
     await client.send_file(
-        entity=to, file=uploaded_files, caption=message_list, progress_callback=callback
+        entity=to, file=uploaded_files, caption=message_list, parse_mode="html", progress_callback=callback
     )
     print(f"Sent message")
 
