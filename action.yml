@@ -1,5 +1,5 @@
 # action.yml
-name: 'Telegram File Uploader'
+name: 'Telegram File Uploader @ Leko'
 description: 'Uploader your GitHub action files to Telegram via Telethon'
 inputs:
   to-who:
