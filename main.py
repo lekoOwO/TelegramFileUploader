@@ -6,6 +6,14 @@ from pathlib import Path
 
 from telethon import TelegramClient
 
+def is_int(s: str):
+    try: 
+        int(s)
+    except ValueError:
+        return False
+    else:
+        return True
+
 api_id = environ.get("API_ID")
 if not api_id:
     print("API_ID is missing")
@@ -39,9 +47,14 @@ async def main(client: TelegramClient, to: str, message: str, files: list[str]):
     print(f"Sending message")
     message_list = [None for i in range(len(uploaded_files) - 1)]
     message_list.append(message)
-    await client.send_file(
-        entity=to, file=uploaded_files, caption=message_list, progress_callback=callback
-    )
+    if is_int(to):
+        await client.send_file(
+            entity=int(to), file=uploaded_files, caption=message_list, progress_callback=callback
+        )
+    else:
+        await client.send_file(
+            entity=to, file=uploaded_files, caption=message_list, progress_callback=callback
+        )
     print(f"Sent message")
 
 
